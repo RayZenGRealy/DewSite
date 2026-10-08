@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import { CartProvider } from "../components/cart-provider";
 import "./globals.css";
+import "./shop.css";
 
 export const metadata: Metadata = {
   title: "DEW — Jewelry Atelier",
@@ -11,7 +13,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <body>{children}</body>
+      <body><CartProvider>{children}</CartProvider></body>
     </html>
   );
 }
