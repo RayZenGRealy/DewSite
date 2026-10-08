@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useCart } from "../components/cart-provider";
 
 const stones = [
   { id: "onyx", name: "Оникс", tone: "#272727", glow: "rgba(222,198,154,.18)" },
@@ -11,15 +13,17 @@ const stones = [
 ];
 
 const products = [
-  { name: "Noir Orbit", kind: "браслет · оникс", price: "2 400 ₴", shape: "orbit" },
-  { name: "Moon Thread", kind: "бусы · лунный камень", price: "3 800 ₴", shape: "thread" },
-  { name: "Violet Dust", kind: "бисер · аметист", price: "1 950 ₴", shape: "dust" },
+  { id: "noir-orbit", name: "Noir Orbit", kind: "браслет · оникс", price: "2 400 ₴", shape: "orbit" },
+  { id: "moon-thread", name: "Moon Thread", kind: "бусы · лунный камень", price: "3 800 ₴", shape: "thread" },
+  { id: "violet-dust", name: "Violet Dust", kind: "бисер · аметист", price: "1 950 ₴", shape: "dust" },
 ];
 
 export default function Home() {
   const [stone, setStone] = useState(stones[0]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const { count } = useCart();
 
   const favoriteLabel = useMemo(
     () => (favorites.length ? `Избранное · ${favorites.length}` : "Избранное"),
@@ -49,7 +53,13 @@ export default function Home() {
         </a>
 
         <div className="top-actions">
-          <button className="text-action" type="button">{favoriteLabel}</button>
+          <Link className="text-action home-nav-link" href="/catalog">Каталог</Link>
+          <Link className="text-action home-nav-link" href="/cart">Шкатулка · {count}</Link>
+          <button className="text-action" type="button" aria-pressed={favoritesOnly}
+            onClick={() => {
+              setFavoritesOnly((value) => !value);
+              document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" });
+            }}>{favoriteLabel}</button>
           <button
             className="menu-toggle"
             type="button"
@@ -64,7 +74,7 @@ export default function Home() {
       </header>
 
       <nav id="main-menu" className={`overlay-menu ${menuOpen ? "is-open" : ""}`}>
-        <a href="#collection" onClick={() => setMenuOpen(false)}>Коллекция</a>
+        <Link href="/catalog" onClick={() => setMenuOpen(false)}>Каталог</Link>
         <a href="#stones" onClick={() => setMenuOpen(false)}>Камни</a>
         <a href="#atelier" onClick={() => setMenuOpen(false)}>Мастерская</a>
       </nav>
@@ -142,21 +152,21 @@ export default function Home() {
         </div>
 
         <div className="product-stage">
-          {products.map((product, index) => {
+          {products.filter((product) => !favoritesOnly || favorites.includes(product.name)).map((product, index) => {
             const liked = favorites.includes(product.name);
             return (
               <article className={`product product-${index + 1}`} key={product.name}>
-                <div className="product-visual">
+                <Link href={`/product/${product.id}`} className="product-visual" aria-label={`Открыть ${product.name}`}>
                   <div className={`jewel jewel-${product.shape}`}>
                     {Array.from({ length: product.shape === "thread" ? 11 : 9 }).map((_, bead) => (
                       <i key={bead} style={{ "--b": bead } as React.CSSProperties} />
                     ))}
                   </div>
                   <span className="piece-number">0{index + 1}</span>
-                </div>
+                </Link>
                 <div className="product-info">
                   <div>
-                    <h3>{product.name}</h3>
+                    <h3><Link href={`/product/${product.id}`}>{product.name}</Link></h3>
                     <p>{product.kind}</p>
                   </div>
                   <strong>{product.price}</strong>
@@ -173,6 +183,9 @@ export default function Home() {
             );
           })}
         </div>
+        {favoritesOnly && favorites.length === 0 &&
+          <p className="home-empty-favorites">Пока нет избранных украшений. Нажмите ♡ на карточке изделия.</p>}
+        <div className="home-all-products"><Link href="/catalog">Посмотреть всю коллекцию <span>→</span></Link></div>
       </section>
 
       <section className="atelier" id="atelier">
