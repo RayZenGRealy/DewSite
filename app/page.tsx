@@ -75,6 +75,7 @@ export default function Home() {
 
       <nav id="main-menu" className={`overlay-menu ${menuOpen ? "is-open" : ""}`}>
         <Link href="/catalog" onClick={() => setMenuOpen(false)}>Каталог</Link>
+        <Link href="/cart" onClick={() => setMenuOpen(false)}>Шкатулка · {count}</Link>
         <a href="#stones" onClick={() => setMenuOpen(false)}>Камни</a>
         <a href="#atelier" onClick={() => setMenuOpen(false)}>Мастерская</a>
       </nav>
