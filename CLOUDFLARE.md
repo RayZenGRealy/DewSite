@@ -1,40 +1,42 @@
-# Публикация DEW на Cloudflare Pages
+# DEW · Cloudflare deployment
 
-Сейчас сайт работает как статический магазин: товары и корзина, без серверных заказов и оплаты. Поэтому первый релиз размещаем через Cloudflare Pages.
+The current DewSite is a **static** Next.js storefront. Its Next.js config uses `output: "export"`; running `npm run build` produces static files in `out/`.
 
-## 1. Подключить GitHub
+## Existing Cloudflare Workers project (dewsite)
 
-1. Открой https://dash.cloudflare.com
-2. Выбери **Workers & Pages** → **Create application** → **Pages** → **Import an existing Git repository** (названия пунктов могут отличаться).
-3. Подключи GitHub-аккаунт **RayZenGRealy**.
-4. Выбери репозиторий **RayZenGRealy/DewSite** и ветку **main**.
+Cloudflare's import flow may have created a **Worker** instead of a **Pages** project. This repository now contains `wrangler.jsonc`, which explicitly deploys `./out` as Worker **static assets**. This prevents Wrangler's automatic migration into OpenNext, which caused the previous `pages-manifest.json` build error.
 
-## 2. Параметры сборки
+In Cloudflare → **Workers & Pages** → **dewsite** → **Settings / Builds**, use:
 
-- Project name: `dewsite` (или свободное имя)
+- Git repository: `RayZenGRealy/DewSite`
 - Production branch: `main`
-- Framework preset: **Next.js (Static HTML Export)**; если пресета нет, выбери **None**
 - Build command: `npm run build`
-- Build output directory: `out`
-- Root directory: `/` (корень репозитория)
-- Environment variable при необходимости: `NODE_VERSION=22`
+- Deploy command: `npx wrangler deploy`
+- Root directory: `/` (repository root)
+- Node.js: 22 or 24 (Cloudflare detected Node 24 previously)
 
-Затем нажми **Save and Deploy** и дождись успешной сборки.
+Do **not** use `bunx opennextjs-cloudflare build` or set the build output to `.next` for this static Worker deployment. `wrangler.jsonc` points at `out`.
 
-В репозитории уже есть `next.config.ts` с `output: "export"`. Он нужен, чтобы сборка создавала директорию `out` для Cloudflare Pages.
+If Git integration is connected, a push to `main` normally triggers a new build/deployment. You can also go to **Deployments** and retry using the latest commit. An active Worker publishes at a `*.workers.dev` address if the workers.dev route is enabled.
 
-## 3. Открыть сайт
+## Alternative: create Cloudflare Pages project
 
-Cloudflare выдаст адрес вроде `https://dewsite.pages.dev` при условии, что такое имя свободно. Следующие изменения в ветке `main` будут публиковаться автоматически.
+If you prefer a `*.pages.dev` domain, create a separate Pages project:
 
-## 4. Собственный домен
+1. Go to **Workers & Pages** → **Create** → **Pages** → **Import an existing Git repository**.
+2. Choose `RayZenGRealy/DewSite`, production branch `main`.
+3. Framework: `Next.js (Static HTML Export)`.
+4. Build command: `npm run build`.
+5. Build output directory: `out`.
 
-В настройках проекта Cloudflare Pages открой **Custom domains** → **Set up a custom domain**, введи свой домен и следуй шагам DNS.
+**Do not run `npx wrangler deploy` as the Pages build/deploy step.** Cloudflare Pages handles deployment of `out` automatically.
 
-## Важное ограничение
+## Future admin access by email
 
-**Сейчас это демонстрационный магазин:** на страницах примерные товары и цены, иллюстрации вместо фото; оформление заказа не отправляет данные, оплаты нет. Не принимай настоящие заказы до подключения сервера, базы и политики обработки персональных данных.
+At this stage, product data and prices are examples, jewelry graphics are illustrations, the cart only persists in the browser, and checkout does not send personal data or place orders.
 
-**Будущая админка:** для входа по email, реальных заказов и изменения товаров на сервере переходим с Pages static export на **Cloudflare Workers** (рекомендуемая текущая технология Cloudflare для Next.js — vinext). Тогда необходимо убрать `output: "export"` и проверить совместимость, а секреты и список администраторов хранить только в защищённой серверной конфигурации.
+When adding protected server-side admin access, real product storage, inventory, orders and payments, we will migrate off the static export to a supported full-stack Worker runtime. Admin email allowlists, login verification, secrets and authorization checks belong **on the server**. Do not publish admin emails, credentials, or tokens in the public repository.
 
-Ссылки: https://developers.cloudflare.com/pages/framework-guides/nextjs/deploy-a-static-nextjs-site/ и https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/
+Official docs:
+- https://developers.cloudflare.com/workers/static-assets/routing/static-site-generation/
+- https://developers.cloudflare.com/pages/framework-guides/nextjs/deploy-a-static-nextjs-site/
