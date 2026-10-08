@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
 /**
- * Cloudflare Pages deployment for the current static storefront.
- * When implementing server-side orders and protected admin routes,
- * remove output: "export" and migrate to Cloudflare Workers.
+ * Current storefront has no backend. Export static HTML for Cloudflare
+ * Workers static assets (wrangler.jsonc -> out/) or Cloudflare Pages.
+ * Remove static export only when we implement a protected server backend.
  */
 const nextConfig: NextConfig = {
   output: "export",
