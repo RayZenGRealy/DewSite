@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CartProvider } from "../components/cart-provider";
+import { FavoritesProvider } from "../components/favorites-provider";
 import "./globals.css";
 import "./shop.css";
 
@@ -13,7 +14,11 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ru">
-      <body><CartProvider>{children}</CartProvider></body>
+      <body>
+        <CartProvider>
+          <FavoritesProvider>{children}</FavoritesProvider>
+        </CartProvider>
+      </body>
     </html>
   );
 }
