@@ -681,3 +681,17 @@ footer {
 @media (max-width: 1100px) {
   .top-actions { gap: 18px; }
 }
+
+/* Curated gemstone journey from the home page */
+.stone-interactive { min-width: 0; }
+.stone-explore {
+  margin-top: 24px; display: inline-flex; align-items: center; gap: 26px;
+  padding: 12px 0; border-bottom: 1px solid rgba(198,164,106,.45);
+  color: #d5bb8e; text-transform: uppercase;
+  letter-spacing: .13em; font-size: 10px; line-height: 1.6;
+}
+.stone-explore > span:last-child { font-size: 21px; }
+.stone-explore:hover { color: #f3e3c0; }
+@media (max-width: 900px) {
+  .stone-interactive { max-width: 100%; overflow: hidden; }
+}
