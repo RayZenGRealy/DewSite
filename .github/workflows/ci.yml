@@ -28,6 +28,7 @@ jobs:
         run: |
           test -f out/index.html
           test -f out/catalog/index.html
+          test -f out/favorites/index.html
           test -f out/cart/index.html
           test -f out/checkout/index.html
           test -f out/404.html
