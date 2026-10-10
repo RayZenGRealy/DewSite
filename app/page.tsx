@@ -115,7 +115,8 @@ export default function Home() {
           <h2>Камень меняет атмосферу.</h2>
         </div>
 
-        <div className="stone-picker" role="list" aria-label="Выбор натурального камня">
+        <div className="stone-interactive">
+        <div className="stone-picker" role="group" aria-label="Выбор натурального камня">
           {stones.map((item, index) => (
             <button
               key={item.id}
@@ -129,6 +130,12 @@ export default function Home() {
               <span>{item.name}</span>
             </button>
           ))}
+        </div>
+          <Link className="stone-explore"
+            href={`/catalog?stone=${encodeURIComponent(stone.name)}`}>
+            <span>Украшения с камнем «{stone.name}»</span>
+            <span aria-hidden="true">↗</span>
+          </Link>
         </div>
       </section>
 
