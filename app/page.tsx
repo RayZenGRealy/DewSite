@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useCart } from "../components/cart-provider";
+import { useFavorites } from "../components/favorites-provider";
+import { FavoriteButton } from "../components/favorite-button";
 
 const stones = [
   { id: "onyx", name: "Оникс", tone: "#272727", glow: "rgba(222,198,154,.18)" },
@@ -21,22 +23,8 @@ const products = [
 export default function Home() {
   const [stone, setStone] = useState(stones[0]);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [favoritesOnly, setFavoritesOnly] = useState(false);
   const { count } = useCart();
-
-  const favoriteLabel = useMemo(
-    () => (favorites.length ? `Избранное · ${favorites.length}` : "Избранное"),
-    [favorites]
-  );
-
-  function toggleFavorite(name: string) {
-    setFavorites((current) =>
-      current.includes(name)
-        ? current.filter((item) => item !== name)
-        : [...current, name]
-    );
-  }
+  const { count: favoritesCount } = useFavorites();
 
   return (
     <main
@@ -55,11 +43,9 @@ export default function Home() {
         <div className="top-actions">
           <Link className="text-action home-nav-link" href="/catalog">Каталог</Link>
           <Link className="text-action home-nav-link" href="/cart">Шкатулка · {count}</Link>
-          <button className="text-action" type="button" aria-pressed={favoritesOnly}
-            onClick={() => {
-              setFavoritesOnly((value) => !value);
-              document.getElementById("collection")?.scrollIntoView({ behavior: "smooth" });
-            }}>{favoriteLabel}</button>
+          <Link className="text-action home-favorites-link" href="/favorites">
+            Избранное · {favoritesCount}
+          </Link>
           <button
             className="menu-toggle"
             type="button"
@@ -76,6 +62,7 @@ export default function Home() {
       <nav id="main-menu" className={`overlay-menu ${menuOpen ? "is-open" : ""}`}>
         <Link href="/catalog" onClick={() => setMenuOpen(false)}>Каталог</Link>
         <Link href="/cart" onClick={() => setMenuOpen(false)}>Шкатулка · {count}</Link>
+        <Link href="/favorites" onClick={() => setMenuOpen(false)}>Избранное · {favoritesCount}</Link>
         <a href="#stones" onClick={() => setMenuOpen(false)}>Камни</a>
         <a href="#atelier" onClick={() => setMenuOpen(false)}>Мастерская</a>
       </nav>
@@ -153,8 +140,7 @@ export default function Home() {
         </div>
 
         <div className="product-stage">
-          {products.filter((product) => !favoritesOnly || favorites.includes(product.name)).map((product, index) => {
-            const liked = favorites.includes(product.name);
+          {products.map((product, index) => {
             return (
               <article className={`product product-${index + 1}`} key={product.name}>
                 <Link href={`/product/${product.id}`} className="product-visual" aria-label={`Открыть ${product.name}`}>
@@ -172,20 +158,11 @@ export default function Home() {
                   </div>
                   <strong>{product.price}</strong>
                 </div>
-                <button
-                  type="button"
-                  className={liked ? "favorite active" : "favorite"}
-                  aria-label={liked ? `Убрать ${product.name} из избранного` : `Добавить ${product.name} в избранное`}
-                  onClick={() => toggleFavorite(product.name)}
-                >
-                  {liked ? "♥" : "♡"}
-                </button>
+                <FavoriteButton id={product.id} className="favorite home-favorite" />
               </article>
             );
           })}
         </div>
-        {favoritesOnly && favorites.length === 0 &&
-          <p className="home-empty-favorites">Пока нет избранных украшений. Нажмите ♡ на карточке изделия.</p>}
         <div className="home-all-products"><Link href="/catalog">Посмотреть всю коллекцию <span>→</span></Link></div>
       </section>
 
