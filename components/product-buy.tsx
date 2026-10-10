@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { type Product } from "../lib/products";
 import { useCart } from "./cart-provider";
+import { FavoriteButton } from "./favorite-button";
 
 export function ProductBuy({ product }: { product: Product }) {
   const [size, setSize] = useState(product.sizes[0]);
@@ -32,6 +33,10 @@ export function ProductBuy({ product }: { product: Product }) {
           <button type="button" aria-label="Увеличить количество" disabled={quantity >= 20} onClick={() => setQuantity((n) => Math.min(20, n + 1))}>+</button>
         </div>
         <button type="button" className="shop-button" onClick={onAdd}>Добавить в шкатулку <span>↗</span></button>
+      </div>
+      <div className="product-favorite-action">
+        <FavoriteButton id={product.id} className="detail-favorite" />
+        <Link href="/favorites">Сохранённые украшения <span aria-hidden="true">↗</span></Link>
       </div>
       {added && <p className="buy-feedback" role="status">Добавлено в корзину. <Link href="/cart">Перейти в шкатулку →</Link></p>}
     </div>
