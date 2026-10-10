@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { categories, products, type Category } from "../lib/products";
 import { ProductCard } from "./product-card";
 
@@ -12,6 +12,13 @@ export function CatalogClient() {
   const [search, setSearch] = useState("");
   const [stone, setStone] = useState("Все камни");
   const [order, setOrder] = useState<SortOrder>("featured");
+
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("stone");
+    if (requested && stones.includes(requested)) {
+      setStone(requested);
+    }
+  }, []);
 
   const matching = useMemo(() => {
     const query = search.trim().toLocaleLowerCase("ru");
