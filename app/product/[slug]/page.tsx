@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ShopHeader } from "../../../components/shop-header";
 import { JewelryArtwork } from "../../../components/jewelry-artwork";
 import { ProductBuy } from "../../../components/product-buy";
+import { ProductCard } from "../../../components/product-card";
 import { formatPrice, productById, products } from "../../../lib/products";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -23,6 +24,11 @@ export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
   const product = productById(slug);
   if (!product) notFound();
+
+  const related = products
+    .filter((candidate) => candidate.id !== product.id)
+    .sort((a, b) => Number(b.category === product.category) - Number(a.category === product.category))
+    .slice(0, 3);
 
   return (
     <div className="store-shell">
@@ -48,6 +54,19 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
         </div>
+
+        <section className="related-section" aria-labelledby="related-title">
+          <div className="related-intro">
+            <div>
+              <p className="eyebrow">возможно, вам близко</p>
+              <h2 id="related-title">Другие <em>истории камня.</em></h2>
+            </div>
+            <Link href="/catalog">Вся коллекция <span aria-hidden="true">↗</span></Link>
+          </div>
+          <div className="catalog-grid">
+            {related.map((item, index) => <ProductCard key={item.id} product={item} index={index} />)}
+          </div>
+        </section>
       </main>
       <footer className="shop-footer"><span>DEW · jewelry atelier</span><Link href="/catalog">← Продолжить знакомство с коллекцией</Link></footer>
     </div>
